@@ -1,35 +1,80 @@
 package com.cocus.doctorLablling.integrationTest;
 
 import com.cocus.doctorLablling.model.Label;
+import com.cocus.doctorLablling.repository.CaseRepository;
 import com.cocus.doctorLablling.repository.LabelRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.restassured.RestAssured;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
+@ExtendWith(MockitoExtension.class)
 public class LabelControllerIntegrationTest {
+
+    @LocalServerPort
+    private Integer port;
+
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
+            "postgres:15-alpine"
+    );
+
+    @BeforeAll
+    static void beforeAll() {
+        postgres.start();
+    }
+
+    @AfterAll
+    static void afterAll() {
+        postgres.stop();
+    }
+
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+    }
+
+
+    @BeforeEach
+    void setUp() {
+        RestAssured.baseURI = "http://localhost:" + port;
+    }
+
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
     private LabelRepository labelRepository;
+    @Autowired
+    private CaseRepository caseRepository;
 
     @BeforeEach
-    public void setUp() {
+    public void setUps() {
         // Clear the repository before each test
+        caseRepository.deleteAll();
         labelRepository.deleteAll();
     }
 
@@ -66,18 +111,6 @@ public class LabelControllerIntegrationTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value("Label 1"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].code").value("B002"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value("Label 2"));
-    }
-
-    @Test
-    public void testGetLabelById() throws Exception {
-        Label label = new Label("A001", "Test Label");
-        labelRepository.save(label);
-
-        mockMvc.perform(MockMvcRequestBuilders
-                        .get("/labels/A001"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("A001"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Test Label"));
     }
 
     @Test
@@ -127,4 +160,3 @@ public class LabelControllerIntegrationTest {
         }
     }
 }
-

@@ -53,7 +53,7 @@ public class LabelController {
             }),
             @ApiResponse(responseCode = "404", description = "Label not found", content = @Content)
     })
-    public ResponseEntity<Label> getLabelById(@PathVariable String labelCode) {
+    public ResponseEntity<Label> getLabelById(@PathVariable("labelCode") String labelCode) {
         return labelService.getLabelById(labelCode)
                 .map(label -> ResponseEntity.ok(label))
                 .orElseThrow(() -> new ResourceNotFoundException("Label not found with code: " + labelCode));
@@ -71,6 +71,8 @@ public class LabelController {
         return labelService.updateLabel(labelCode, label)
                 .map(updatedLabel -> ResponseEntity.ok(updatedLabel))
                 .orElseThrow(() -> new ResourceNotFoundException("Label not found with code: " + labelCode));
+
+
     }
 
     @DeleteMapping("/{labelCode}")

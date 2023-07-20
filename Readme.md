@@ -28,15 +28,19 @@ Build the Docker Image : Navigate to the project directory and run the following
 command to build the Docker image:
 
 ```
-mvn clean package -DskipTests
+mvn clean package
 ```
 
 ```
-docker compose up --build
+docker compose up
 ```
 
 
 The API will be accessible at http://localhost:8080.
+
+## Unit Testing & Integration Testing
+- used the test container approach to create a postgres docker container to perform integration testing for the API endpoints
+- Unit testing of the API services.
 
 ## API Endpoints
 ... use swagger ui for details
@@ -58,7 +62,7 @@ http://localhost:8080/swagger-ui.html
 The Swagger UI will be displayed, showing all the API endpoints and their descriptions.
 You can interact with the API right from the Swagger UI.
 
-## Postman Collection
+## Postman Client
 If you prefer using Postman for API testing and exploration,
 we have prepared a Postman collection that includes all the API endpoints.
 You can import this collection into your Postman application to get started quickly.

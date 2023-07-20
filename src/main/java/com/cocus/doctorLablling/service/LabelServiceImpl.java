@@ -29,7 +29,7 @@ public class LabelServiceImpl implements LabelService {
     @Cacheable(cacheNames = "labels")
     public Optional<Label> getLabelById(String code) {
         log.info("Retrieving Label with Label Code: {}", code);
-        return Optional.ofNullable(labelRepository.findById(code).orElse(null));
+        return labelRepository.findById(code);
     }
 
     @Override
@@ -40,8 +40,8 @@ public class LabelServiceImpl implements LabelService {
         Optional<Label> existingLabel = labelRepository.findById(code);
         if (existingLabel.isPresent()) {
             Label labelObj = existingLabel.get();
-            labelObj.setDescription(existingLabel.get().getDescription());
-            Label updatedLabelEntity =labelRepository.save(label);
+            labelObj.setDescription(label.getDescription());
+            Label updatedLabelEntity =labelRepository.save(labelObj);
             log.info("Updated Label: {}", updatedLabelEntity);
             return Optional.of(updatedLabelEntity);
         } else {

@@ -25,7 +25,7 @@ public class Case {
     @Column(name = "doctor_id", nullable = false)
     private Long doctorId;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Label> labels = new ArrayList<>();
 
     @Column(name = "time_to_label", nullable = false)
